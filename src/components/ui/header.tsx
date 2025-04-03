@@ -4,6 +4,7 @@ import {
   ClockAlertIcon,
   HelpCircleIcon,
   LogInIcon,
+  LogOutIcon,
   MenuIcon,
   PercentCircleIcon,
   SearchCheckIcon,
@@ -18,9 +19,21 @@ import {
   SheetTitle,
 } from "./sheet";
 import { useState } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import { Separator } from "./separator";
 
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const { status, data } = useSession();
+
+  const handleLoginClick = async () => {
+    await signIn();
+  };
+
+  const handleLogoutClick = async () => {
+    await signOut();
+  };
 
   return (
     <Card className="flex justify-between p-[1.875rem] items-center">
@@ -37,21 +50,49 @@ const Header = () => {
           </SheetHeader>
 
           <div className="mt-2 flex flex-col gap-10">
-            <Button variant="outline" className="justify-start w-full gap-3">
-              <LogInIcon size={16} />
-              Fazer Login
-            </Button>
+            <div className="flex flex-col">
+              {status === "authenticated" && data?.user && (
+                <div className="flex items-center gap-2 py-4">
+                  <Avatar>
+                    <AvatarFallback>
+                      {data.user.name?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
 
+                    {data.user.image && <AvatarImage src={data.user.image} />}
+                  </Avatar>
+                  <p className="font-medium">{data.user.name}</p>
+                </div>
+              )}
+              <Separator />
+            </div>
+            {status !== "authenticated" && (
+              <Button
+                onClick={handleLoginClick}
+                variant="outline"
+                className="justify-start w-full gap-3"
+              >
+                <LogInIcon size={16} />
+                Fazer Login
+              </Button>
+            )}
+            {status === "authenticated" && (
+              <Button
+                onClick={handleLogoutClick}
+                variant="outline"
+                className="justify-start w-full gap-3"
+              >
+                <LogOutIcon size={16} />
+                Fazer Logout
+              </Button>
+            )}
             <Button variant="outline" className="justify-start w-full gap-3">
               <SearchCheckIcon size={16} />
               Mais Procurados
             </Button>
-
             <Button variant="outline" className="justify-start w-full gap-3">
               <PercentCircleIcon size={16} />
               Com Desconto
             </Button>
-
             <Button variant="outline" className="justify-start w-full gap-3">
               <ClockAlertIcon size={16} />
               Lançamentos
