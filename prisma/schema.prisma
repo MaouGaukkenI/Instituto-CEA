@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Courses {
+  id                 String    @id @default(uuid()) // Identificador único
+  title              String    // Nome do curso
+  slug               String    // Slug para URL amigável
+  description        String    // Descrição detalhada
+  workloadTime       Int?       // Carga horária em horas (Pode ser vazio no caso de cursos contínuos)
+  modality           Modality  // Modalidade (Presencial, Online, Híbrido)
+  level              Level      // Nível do curso (Básico, Intermediário, Avançado)
+  price              Decimal @db.Decimal(8,2)    // Preço do curso
+  discountPercentage Int @default(0) // Porcentagem de desconto
+  certification      Boolean   // Indica se há certificação
+  startDate          DateTime   // Data de início
+  endDate            DateTime?  // Data de término (pode ser NULL para cursos contínuos)
+  status             CourseStatus // Status do curso (Aberto, Encerrado, Em breve)
+  instructor         String     // Nome do instrutor
+  imageUrl          String?    // URL da imagem de destaque (opcional)
+  videoUrl          String?    // URL do vídeo de apresentação (opcional)
+  targetAudience    String?    // Público-alvo (opcional)
+  requirements      String?    // Pré-requisitos (opcional)
+  programContent    String     // Conteúdo programático
+  platformUrl       String?    // Plataforma do curso (se for online)
+  vagas             Int?       // Número máximo de alunos (opcional)
+
+  category          Category @relation(fields: [categoryId], references: [id]) // Relacionamento com categoria
+  categoryId        String    // ID da categoria
+
+  institution       Institution? @relation(fields: [institutionId], references: [id]) // Relacionamento opcional
+  institutionId     String?    // ID da instituição (opcional)
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String
+  imageUrl    String
+
+  courses     Courses[]
+}
+
+model Institution {
+  id      String @id @default(uuid())
+  name    String
+  courses Courses[]
+}
+
+// Enums para padronização de valores
+
+enum Modality {
+  PRESENCIAL
+  ONLINE
+  HIBRIDO
+}
+
+enum Level {
+  BASICO
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum CourseStatus {
+  ABERTO
+  ENCERRADO
+  EM_BREVE
+}
