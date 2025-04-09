@@ -35,6 +35,12 @@ const Header = () => {
     await signOut();
   };
 
+  console.log("Session status:", status);
+  console.log("Session data:", data);
+  if (status === "authenticated" && data?.user) {
+    console.log("User:", data.user);
+  }
+
   return (
     <Card className="flex justify-between p-[1.875rem] items-center">
       <Sheet open={open} onOpenChange={setOpen}>
@@ -57,7 +63,6 @@ const Header = () => {
                     <AvatarFallback>
                       {data.user.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
-
                     {data.user.image && <AvatarImage src={data.user.image} />}
                   </Avatar>
                   <p className="font-medium">{data.user.name}</p>
