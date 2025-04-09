@@ -1,30 +1,39 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // ⬅️ novo
 
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam) {
+      setErrorMessage(decodeURIComponent(errorParam));
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(""); // limpa erro anterior
+    setErrorMessage("");
 
     const result = await signIn("credentials", {
+      redirect: false,
       email,
       password,
-      callbackUrl: "/", // redireciona manualmente se login der certo
+      callbackUrl: "/Menu",
     });
 
     if (result?.error) {
-      setErrorMessage(result.error); // mostra erro retornado do backend
+      setErrorMessage(result.error);
     } else if (result?.ok && result?.url) {
-      router.push(result.url); // redireciona se sucesso
+      router.push(result.url);
     }
   };
 

@@ -56,6 +56,23 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        const existingUser = await prismaClient.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (existingUser && existingUser.password) {
+          const msg = encodeURIComponent(
+            "Este e-mail já está vinculado a outro método de login."
+          );
+          throw new Error(msg);
+        }
+      }
+
+      return true;
+    },
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -71,12 +88,14 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
+
     async redirect({ url, baseUrl }) {
       return "/Menu";
     },
   },
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
