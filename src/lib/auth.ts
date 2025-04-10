@@ -62,15 +62,24 @@ export const authOptions: AuthOptions = {
           where: { email: user.email! },
         });
 
-        if (existingUser && existingUser.password) {
+        // ✅ Novo usuário usando Google → permitido
+        if (!existingUser) {
+          return true;
+        }
+
+        // ❌ Usuário já existe e NÃO permitiu Google
+        if (!existingUser.allowGoogle) {
           const msg = encodeURIComponent(
-            "Este e-mail já está vinculado a outro método de login."
+            "Este e-mail existe, mas o login com Google não está ativado."
           );
           throw new Error(msg);
         }
+
+        // ✅ Usuário existe e PERMITIU Google
+        return true;
       }
 
-      return true;
+      return true; // login com senha sempre é permitido
     },
 
     async jwt({ token, user }) {
@@ -90,7 +99,9 @@ export const authOptions: AuthOptions = {
     },
 
     async redirect({ url, baseUrl }) {
-      return "/Menu";
+      // Garante que só URLs internas sejam aceitas
+      if (url.startsWith(baseUrl)) return url;
+      return baseUrl + "/Menu";
     },
   },
   pages: {

@@ -111,6 +111,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  allowGoogle   Boolean    @default(false)
   accounts      Account[]
   sessions      Session[]
 }

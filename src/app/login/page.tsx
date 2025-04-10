@@ -7,10 +7,13 @@ import { useEffect, useState } from "react";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // ⬅️ novo
+  const [errorMessage, setErrorMessage] = useState("");
 
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Pega a URL de retorno ou define /Menu como padrão
+  const callbackUrl = searchParams.get("callbackUrl") || "/Menu";
 
   useEffect(() => {
     const errorParam = searchParams.get("error");
@@ -27,13 +30,13 @@ export default function LoginPage() {
       redirect: false,
       email,
       password,
-      callbackUrl: "/Menu",
+      callbackUrl, // adiciona a URL de retorno aqui
     });
 
     if (result?.error) {
       setErrorMessage(result.error);
-    } else if (result?.ok && result?.url) {
-      router.push(result.url);
+    } else if (result?.ok) {
+      router.push(callbackUrl); // redireciona para a página de origem
     }
   };
 
@@ -76,7 +79,7 @@ export default function LoginPage() {
         <button
           type="button"
           className="bg-red-500 p-2 rounded"
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl })}
         >
           Entrar com Google
         </button>

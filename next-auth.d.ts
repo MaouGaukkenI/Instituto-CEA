@@ -7,7 +7,8 @@ declare module "next-auth" {
       id: string;
       name: string;
       email: string;
-      image?: string; // <- garante que a imagem seja reconhecida
+      image?: string;
+      allowGoogle?: boolean;
     };
   }
 
@@ -16,5 +17,6 @@ declare module "next-auth" {
     name: string;
     email: string;
     image?: string;
+    allowGoogle?: boolean;
   }
 }
